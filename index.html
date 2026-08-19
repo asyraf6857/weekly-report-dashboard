@@ -7,66 +7,17 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Monitoring Sign Off & Reconciliation</title>
-  <link rel="stylesheet" href="style.css?v=20260819-1825">
+  <link rel="stylesheet" href="style.css?v=20260819-1845">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="page-shell">
-  <div class="dashboard">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">MARINE SERVICES • MANAGEMENT VIEW</div>
-        <h1>MONITORING SIGN OFF & RECONCILIATION</h1>
-        <div class="subtitle">Source: RECONCILIATION WEEKLY 2026</div>
-      </div>
-      <div class="livebox"><span id="dot" class="dot"></span><span id="sourceStatus">Loading synced GitHub data…</span><small id="updated"></small></div>
-    </header>
-
-    <section class="kpi-row">
-      <div class="kpi green"><span>TOTAL VISIT</span><strong id="totalVisit">—</strong><small>Filtered records</small></div>
-      <div class="kpi green"><span>TOTAL SIGN OFF</span><strong id="totalSignoff">—</strong><small>BILLED + SIGNOFF</small></div>
-      <div class="kpi orange"><span>TOTAL PENDING</span><strong id="totalPending">—</strong><small>Pending visits</small></div>
-      <div class="kpi green"><span>AVG SIGN OFF TIME</span><strong id="avgSignoff">—</strong><small>Valid signed records</small></div>
-      <div class="kpi split"><span>DISPUTE STATUS</span><div class="splitnums"><div><strong id="closedDisputes">—</strong><small>CLOSED</small></div><div><strong id="openDisputes">—</strong><small>OPEN</small></div></div></div>
-    </section>
-
-    <section class="chart-grid">
-      <div class="panel wide"><h2>SIGN OFF DURATION BY CATEGORY</h2><canvas id="durationWeekChart"></canvas></div>
-      <div class="panel"><h2>VISIT STATUS BY VISIT REASON</h2><canvas id="reasonChart"></canvas></div>
-      <div class="panel"><h2>SIGN OFF BY EXECUTIVE / WEEK</h2><canvas id="execWeekChart"></canvas></div>
-      <div class="panel"><h2>AVERAGE SIGN OFF TIME BY EXECUTIVE</h2><canvas id="execAvgChart"></canvas></div>
-      <div class="panel"><h2>TOTAL SIGN OFF BY EXECUTIVE</h2><canvas id="execDonutChart"></canvas></div>
-    </section>
-
-    <section class="panel detail-panel">
-      <div class="detail-head"><div><div class="eyebrow">DETAIL</div><h2>FILTERED RAW DATA</h2></div><div><span id="rowCount"></span><button id="clearAll">Clear all filters</button></div></div>
-      <div class="table-wrap"><table><thead><tr><th>Week</th><th>Visit No</th><th>Status</th><th>Vessel</th><th>Agent</th><th>Visit Reason</th><th>VOR Category</th><th>ETD</th><th>Invoice</th><th>Sign Off Time</th><th>Sign Off By</th><th>Duration</th><th>Category</th></tr></thead><tbody id="detailBody"></tbody></table></div>
-    </section>
-
-    <section id="errorBox" class="error hidden"></section>
-  </div>
-
-  <aside class="slicers">
-    <div class="slicer-actions"><button id="refresh">Refresh Data</button><button id="reset">Reset</button></div>
-    <div class="slicer" data-key="Visit Status"><div class="slicer-title">Visit Status</div><div id="sl-status" class="slicer-items"></div></div>
-    <div class="slicer" data-key="Sign Off By"><div class="slicer-title">Sign Off By</div><div id="sl-signoff" class="slicer-items"></div></div>
-    <div class="slicer" data-key="IMO WEEK"><div class="slicer-title">IMO WEEK</div><div id="sl-week" class="slicer-items tall"></div></div>
-    <div class="slicer" data-key="DURATION CATEGORY"><div class="slicer-title">DURATION CATEGORY</div><div id="sl-duration" class="slicer-items"></div></div>
-    <div class="slicer" data-key="Visit Reason"><div class="slicer-title">Visit Reason</div><div id="sl-reason" class="slicer-items tall"></div></div>
-  </aside>
-</div>
-<script>
-(function(){
-  var s=document.getElementById('sourceStatus');
-  var d=document.getElementById('dot');
-  window.addEventListener('error',function(e){
-    if(s) s.textContent='Script error: '+String(e.message||'Unknown error');
-    if(d) d.className='dot bad';
-    var box=document.getElementById('errorBox');
-    if(box){box.classList.remove('hidden');box.innerHTML='<b>Dashboard script error.</b><br>'+String(e.message||'Unknown error');}
-  });
-})();
-</script>
-<script src="app.js?v=20260819-1825" onerror="document.getElementById('sourceStatus').textContent='app.js failed to load';document.getElementById('dot').className='dot bad';document.getElementById('errorBox').classList.remove('hidden');document.getElementById('errorBox').innerHTML='<b>app.js failed to load from GitHub Pages.</b>';"></script>
-</body>
-</html>
+<div class="page-shell"><div class="dashboard">
+<header class="topbar"><div><div class="eyebrow">MARINE SERVICES • MANAGEMENT VIEW</div><h1>MONITORING SIGN OFF & RECONCILIATION</h1><div class="subtitle">Source: RECONCILIATION WEEKLY 2026</div></div><div class="livebox"><span id="dot" class="dot"></span><span id="sourceStatus">Loading synced GitHub data…</span><small id="updated"></small></div></header>
+<section class="kpi-row"><div class="kpi green"><span>TOTAL VISIT</span><strong id="totalVisit">—</strong><small>Filtered records</small></div><div class="kpi green"><span>TOTAL SIGN OFF</span><strong id="totalSignoff">—</strong><small>BILLED + SIGNOFF</small></div><div class="kpi orange"><span>TOTAL PENDING</span><strong id="totalPending">—</strong><small>Pending visits</small></div><div class="kpi green"><span>AVG SIGN OFF TIME</span><strong id="avgSignoff">—</strong><small>Valid signed records</small></div><div class="kpi split"><span>DISPUTE STATUS</span><div class="splitnums"><div><strong id="closedDisputes">—</strong><small>CLOSED</small></div><div><strong id="openDisputes">—</strong><small>OPEN</small></div></div></div></section>
+<section class="chart-grid"><div class="panel wide"><h2>SIGN OFF DURATION BY CATEGORY</h2><canvas id="durationWeekChart"></canvas></div><div class="panel"><h2>VISIT STATUS BY VISIT REASON</h2><canvas id="reasonChart"></canvas></div><div class="panel"><h2>SIGN OFF BY EXECUTIVE / WEEK</h2><canvas id="execWeekChart"></canvas></div><div class="panel"><h2>AVERAGE SIGN OFF TIME BY EXECUTIVE</h2><canvas id="execAvgChart"></canvas></div><div class="panel"><h2>TOTAL SIGN OFF BY EXECUTIVE</h2><canvas id="execDonutChart"></canvas></div></section>
+<section class="panel detail-panel"><div class="detail-head"><div><div class="eyebrow">DETAIL</div><h2>FILTERED RAW DATA</h2></div><div><span id="rowCount"></span><button id="exportCsv">Export CSV</button><button id="clearAll">Clear all filters</button></div></div><div class="table-wrap"><table><thead><tr><th>Week</th><th>Visit No</th><th>Status</th><th>Vessel</th><th>Agent</th><th>Visit Reason</th><th>VOR Category</th><th>ETD</th><th>Invoice</th><th>Sign Off Time</th><th>Sign Off By</th><th>Duration</th><th>Category</th></tr></thead><tbody id="detailBody"></tbody></table></div></section>
+<section id="errorBox" class="error hidden"></section></div>
+<aside class="slicers"><div class="slicer-actions"><button id="refresh">Refresh Data</button><button id="reset">Reset</button><button id="exportCsvSide">Export CSV</button></div><div class="slicer" data-key="Visit Status"><div class="slicer-title">Visit Status</div><div id="sl-status" class="slicer-items"></div></div><div class="slicer" data-key="Sign Off By"><div class="slicer-title">Sign Off By</div><div id="sl-signoff" class="slicer-items"></div></div><div class="slicer" data-key="IMO WEEK"><div class="slicer-title">IMO WEEK</div><div id="sl-week" class="slicer-items tall"></div></div><div class="slicer" data-key="DURATION CATEGORY"><div class="slicer-title">DURATION CATEGORY</div><div id="sl-duration" class="slicer-items"></div></div><div class="slicer" data-key="Visit Reason"><div class="slicer-title">Visit Reason</div><div id="sl-reason" class="slicer-items tall"></div></div></aside></div>
+<script>(function(){var s=document.getElementById('sourceStatus'),d=document.getElementById('dot');window.addEventListener('error',function(e){if(s)s.textContent='Script error: '+String(e.message||'Unknown error');if(d)d.className='dot bad';var box=document.getElementById('errorBox');if(box){box.classList.remove('hidden');box.innerHTML='<b>Dashboard script error.</b><br>'+String(e.message||'Unknown error');}});})();</script>
+<script src="app.js?v=20260819-1845" onerror="document.getElementById('sourceStatus').textContent='app.js failed to load';document.getElementById('dot').className='dot bad';"></script>
+</body></html>
