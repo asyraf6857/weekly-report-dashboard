@@ -3,40 +3,51 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Weekly Report Dashboard</title>
+  <title>Marine Weekly Report Dashboard</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div><div class="eyebrow">MARINE SERVICES</div><h1>Weekly Report Dashboard</h1></div>
-    <div class="updated">Live browser dashboard • GitHub Pages</div>
-  </header>
-  <main class="wrap">
-    <section class="controls card">
-      <label>Search <input id="search" placeholder="Vessel / Visit No / Invoice"></label>
-      <label>Activity <select id="activity"><option value="ALL">All Activities</option></select></label>
-      <label>Status <select id="status"><option value="ALL">All Status</option></select></label>
-      <label>Week <select id="week"><option value="ALL">All Weeks</option></select></label>
-      <button id="reset">Reset</button>
-    </section>
+<header class="topbar">
+  <div><div class="eyebrow">MARINE SERVICES • LIVE GOOGLE SHEET</div><h1>Weekly Report Dashboard</h1><div class="subtitle">Source: tab <b>Main (2)</b></div></div>
+  <div class="live"><span id="dot" class="dot"></span><span id="sourceStatus">Connecting…</span><small id="updated"></small></div>
+</header>
+<main class="wrap">
+  <section class="controls card">
+    <label>Search<input id="search" placeholder="Visit / vessel / status / invoice"></label>
+    <label>Week<select id="week"><option value="ALL">All Weeks</option></select></label>
+    <label>Visit Reason / Activity<select id="activity"><option value="ALL">All</option></select></label>
+    <label>Status<select id="status"><option value="ALL">All</option></select></label>
+    <button id="reset">Reset filters</button>
+    <button id="refresh" class="secondary">Refresh data</button>
+  </section>
 
-    <section class="kpis">
-      <div class="kpi card"><span>Total Visits</span><strong id="total">0</strong></div>
-      <div class="kpi card"><span>Closed</span><strong id="closed">0</strong></div>
-      <div class="kpi card"><span>Pilotage</span><strong id="pilotage">0</strong></div>
-      <div class="kpi card"><span>CMC</span><strong id="cmc">0</strong></div>
-    </section>
+  <section class="kpis">
+    <div class="kpi card"><span>Total Records</span><strong id="total">—</strong><small>Filtered rows</small></div>
+    <div class="kpi card"><span>Unique Visits</span><strong id="visits">—</strong><small>Distinct visit numbers</small></div>
+    <div class="kpi card"><span>Latest Week</span><strong id="latestWeek">—</strong><small id="latestWeekCount">No data yet</small></div>
+    <div class="kpi card"><span>Top Activity</span><strong id="topActivity">—</strong><small id="topActivityCount">No data yet</small></div>
+  </section>
 
-    <section class="grid">
-      <div class="card chartbox"><h2>Visits by Activity</h2><canvas id="activityChart"></canvas></div>
-      <div class="card chartbox"><h2>Visits by Week</h2><canvas id="weekChart"></canvas></div>
-    </section>
+  <section class="analysis card">
+    <div><span class="section-kicker">AUTO ANALYSIS</span><h2>Weekly highlights</h2></div>
+    <div id="insights" class="insights"><div class="insight">Loading Main (2)…</div></div>
+  </section>
 
-    <section class="card"><div class="tablehead"><h2>Visit Details</h2><span id="countLabel"></span></div>
-      <div class="tablewrap"><table><thead><tr><th>Visit</th><th>Vessel</th><th>LOA</th><th>Activity</th><th>Status</th><th>Start</th><th>End</th><th>Invoice</th></tr></thead><tbody id="tbody"></tbody></table></div>
-    </section>
-  </main>
-  <script src="data.js"></script><script src="app.js"></script>
+  <section class="grid">
+    <div class="card chartbox"><h2>Weekly Volume</h2><canvas id="weekChart"></canvas></div>
+    <div class="card chartbox"><h2>Visit Reason / Activity</h2><canvas id="activityChart"></canvas></div>
+    <div class="card chartbox"><h2>Status Distribution</h2><canvas id="statusChart"></canvas></div>
+    <div class="card chartbox"><h2>Top 10 Vessels / Items</h2><canvas id="vesselChart"></canvas></div>
+  </section>
+
+  <section class="card">
+    <div class="tablehead"><div><span class="section-kicker">DETAIL</span><h2>Main (2) records</h2></div><span id="countLabel"></span></div>
+    <div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+  </section>
+
+  <section id="errorBox" class="error card hidden"></section>
+</main>
+<script src="app.js"></script>
 </body>
 </html>
