@@ -35,7 +35,7 @@ function countBy(rows, key) {
   });
   return out;
 }
-function top(obj, n) {
+function topEntries(obj, n) {
   return Object.keys(obj).map(function (k) { return [k, obj[k]]; })
     .sort(function (a,b) { return b[1] - a[1]; }).slice(0, n || 20);
 }
@@ -135,10 +135,10 @@ function render() {
     return {label:c,data:weeks.map(function (w) { return rows.filter(function (r) { return text(r['IMO WEEK'])===w && text(r['DURATION CATEGORY'])===c; }).length; }),tension:.25,pointRadius:3,borderWidth:2,fill:false};
   }));
 
-  var reasons = top(countBy(rows,'Visit Reason'),12);
+  var reasons = topEntries(countBy(rows,'Visit Reason'),12);
   makeChart('reasonChart','bar',reasons.map(function (x) { return x[0]; }),[{label:'Visits',data:reasons.map(function (x) { return x[1]; })}],{plugins:{legend:{display:false}}});
 
-  var execs = top(countBy(rows.filter(function (r) { return text(r['Sign Off By']); }),'Sign Off By'),8).map(function (x) { return x[0]; });
+  var execs = topEntries(countBy(rows.filter(function (r) { return text(r['Sign Off By']); }),'Sign Off By'),8).map(function (x) { return x[0]; });
   makeChart('execWeekChart','bar',weeks,execs.map(function (e) {
     return {label:e,data:weeks.map(function (w) { return rows.filter(function (r) { return text(r['IMO WEEK'])===w && text(r['Sign Off By'])===e; }).length; })};
   }),{scales:{x:{stacked:true,ticks:{color:'#9fb4c7'},grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{color:'#9fb4c7'},grid:{color:'rgba(255,255,255,.07)'}}}});
