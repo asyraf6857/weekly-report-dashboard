@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weekly Report Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div><div class="eyebrow">MARINE SERVICES</div><h1>Weekly Report Dashboard</h1></div>
+    <div class="updated">Live browser dashboard • GitHub Pages</div>
+  </header>
+  <main class="wrap">
+    <section class="controls card">
+      <label>Search <input id="search" placeholder="Vessel / Visit No / Invoice"></label>
+      <label>Activity <select id="activity"><option value="ALL">All Activities</option></select></label>
+      <label>Status <select id="status"><option value="ALL">All Status</option></select></label>
+      <label>Week <select id="week"><option value="ALL">All Weeks</option></select></label>
+      <button id="reset">Reset</button>
+    </section>
+
+    <section class="kpis">
+      <div class="kpi card"><span>Total Visits</span><strong id="total">0</strong></div>
+      <div class="kpi card"><span>Closed</span><strong id="closed">0</strong></div>
+      <div class="kpi card"><span>Pilotage</span><strong id="pilotage">0</strong></div>
+      <div class="kpi card"><span>CMC</span><strong id="cmc">0</strong></div>
+    </section>
+
+    <section class="grid">
+      <div class="card chartbox"><h2>Visits by Activity</h2><canvas id="activityChart"></canvas></div>
+      <div class="card chartbox"><h2>Visits by Week</h2><canvas id="weekChart"></canvas></div>
+    </section>
+
+    <section class="card"><div class="tablehead"><h2>Visit Details</h2><span id="countLabel"></span></div>
+      <div class="tablewrap"><table><thead><tr><th>Visit</th><th>Vessel</th><th>LOA</th><th>Activity</th><th>Status</th><th>Start</th><th>End</th><th>Invoice</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+  </main>
+  <script src="data.js"></script><script src="app.js"></script>
+</body>
+</html>
