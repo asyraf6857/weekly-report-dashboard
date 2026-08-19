@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Monitoring Sign Off & Reconciliation</title>
-  <link rel="stylesheet" href="style.css?v=20260819-1815">
+  <link rel="stylesheet" href="style.css?v=20260819-1825">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -16,7 +19,7 @@
         <h1>MONITORING SIGN OFF & RECONCILIATION</h1>
         <div class="subtitle">Source: RECONCILIATION WEEKLY 2026</div>
       </div>
-      <div class="livebox"><span id="dot" class="dot"></span><span id="sourceStatus">Starting dashboard…</span><small id="updated"></small></div>
+      <div class="livebox"><span id="dot" class="dot"></span><span id="sourceStatus">Loading synced GitHub data…</span><small id="updated"></small></div>
     </header>
 
     <section class="kpi-row">
@@ -56,15 +59,14 @@
 (function(){
   var s=document.getElementById('sourceStatus');
   var d=document.getElementById('dot');
-  if(s) s.textContent='Loading dashboard script…';
   window.addEventListener('error',function(e){
-    if(s) s.textContent='Script error';
+    if(s) s.textContent='Script error: '+String(e.message||'Unknown error');
     if(d) d.className='dot bad';
     var box=document.getElementById('errorBox');
     if(box){box.classList.remove('hidden');box.innerHTML='<b>Dashboard script error.</b><br>'+String(e.message||'Unknown error');}
   });
 })();
 </script>
-<script src="app.js?v=20260819-1815" onerror="document.getElementById('sourceStatus').textContent='app.js failed to load';document.getElementById('dot').className='dot bad';document.getElementById('errorBox').classList.remove('hidden');document.getElementById('errorBox').innerHTML='<b>app.js failed to load from GitHub Pages.</b>';"></script>
+<script src="app.js?v=20260819-1825" onerror="document.getElementById('sourceStatus').textContent='app.js failed to load';document.getElementById('dot').className='dot bad';document.getElementById('errorBox').classList.remove('hidden');document.getElementById('errorBox').innerHTML='<b>app.js failed to load from GitHub Pages.</b>';"></script>
 </body>
 </html>
