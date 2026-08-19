@@ -5,15 +5,14 @@ on:
   schedule:
     - cron: '17 * * * *'
   push:
-    paths:
-      - 'scripts/sync_data.py'
-      - '.github/workflows/sync-data.yml'
+    branches: ['main']
 
 permissions:
   contents: write
 
 jobs:
   sync:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
