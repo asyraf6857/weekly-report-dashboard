@@ -1,1 +1,57 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Marine Sign Off & Reconciliation Dashboard</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script></head><body><header class="topbar"><div><div class="eyebrow">MARINE SERVICES • WEEKLY REPORT 2026</div><h1>Monitoring Sign Off & Reconciliation</h1><div class="subtitle">Management dashboard • live from Reconciliation Weekly 2026</div></div><div class="live"><span id="dot" class="dot"></span><span id="sourceStatus">Connecting…</span><small id="updated"></small></div></header><main class="wrap"><section class="controls card"><label>Search<input id="search" placeholder="Visit / vessel / agent / invoice"></label><label>Week<select id="week"><option value="ALL">All Weeks</option></select></label><label>Visit Reason<select id="reason"><option value="ALL">All</option></select></label><label>Visit Status<select id="status"><option value="ALL">All</option></select></label><button id="reset">Reset filters</button><button id="refresh" class="secondary">Refresh data</button></section><section class="kpis six"><div class="kpi card"><span>Total Visits</span><strong id="total">—</strong><small>All filtered records</small></div><div class="kpi card"><span>Billed</span><strong id="billed">—</strong><small id="billedPct">—</small></div><div class="kpi card"><span>Pending</span><strong id="pending">—</strong><small>Require monitoring</small></div><div class="kpi card"><span>Sign Off</span><strong id="signoff">—</strong><small>Signed, not billed</small></div><div class="kpi card"><span>≤ 4H Sign Off</span><strong id="under4">—</strong><small id="under4Pct">Billed records</small></div><div class="kpi card"><span>Open Disputes</span><strong id="openDisputes">26</strong><small>Current dispute register</small></div></section><section class="analysis card"><div><span class="section-kicker">AUTO ANALYSIS</span><h2>Management highlights</h2></div><div id="insights" class="insights"></div></section><section class="grid"><div class="card chartbox wide"><h2>Weekly Visit Volume & Status</h2><canvas id="weekChart"></canvas></div><div class="card chartbox"><h2>Visit Reason</h2><canvas id="reasonChart"></canvas></div><div class="card chartbox"><h2>Visit Status</h2><canvas id="statusChart"></canvas></div><div class="card chartbox"><h2>Sign Off Duration</h2><canvas id="durationChart"></canvas></div><div class="card chartbox"><h2>Top 10 Agents</h2><canvas id="agentChart"></canvas></div><div class="card chartbox"><h2>Top 10 Vessels</h2><canvas id="vesselChart"></canvas></div></section><section class="card"><div class="tablehead"><div><span class="section-kicker">ACTION LIST</span><h2>Pending / Sign Off Monitoring</h2></div><span id="actionCount"></span></div><div class="tablewrap"><table><thead><tr><th>Week</th><th>Visit</th><th>Status</th><th>Vessel</th><th>Agent</th><th>Reason</th><th>ETD</th><th>Sign Off Time</th><th>Duration</th><th>Category</th></tr></thead><tbody id="actionBody"></tbody></table></div></section><section id="errorBox" class="error card hidden"></section></main><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Monitoring Sign Off & Reconciliation</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="page-shell">
+  <div class="dashboard">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">MARINE SERVICES • MANAGEMENT VIEW</div>
+        <h1>MONITORING SIGN OFF & RECONCILIATION</h1>
+        <div class="subtitle">Source: RECONCILIATION WEEKLY 2026</div>
+      </div>
+      <div class="livebox"><span id="dot" class="dot"></span><span id="sourceStatus">Connecting…</span><small id="updated"></small></div>
+    </header>
+
+    <section class="kpi-row">
+      <div class="kpi green"><span>TOTAL VISIT</span><strong id="totalVisit">—</strong><small>Filtered records</small></div>
+      <div class="kpi green"><span>TOTAL SIGN OFF</span><strong id="totalSignoff">—</strong><small>BILLED + SIGNOFF</small></div>
+      <div class="kpi orange"><span>TOTAL PENDING</span><strong id="totalPending">—</strong><small>Pending visits</small></div>
+      <div class="kpi green"><span>AVG SIGN OFF TIME</span><strong id="avgSignoff">—</strong><small>Valid signed records</small></div>
+      <div class="kpi split"><span>DISPUTE STATUS</span><div class="splitnums"><div><strong id="closedDisputes">—</strong><small>CLOSED</small></div><div><strong id="openDisputes">—</strong><small>OPEN</small></div></div></div>
+    </section>
+
+    <section class="chart-grid">
+      <div class="panel wide"><h2>SIGN OFF DURATION BY CATEGORY</h2><canvas id="durationWeekChart"></canvas></div>
+      <div class="panel"><h2>VISIT STATUS BY VISIT REASON</h2><canvas id="reasonChart"></canvas></div>
+      <div class="panel"><h2>SIGN OFF BY EXECUTIVE / WEEK</h2><canvas id="execWeekChart"></canvas></div>
+      <div class="panel"><h2>AVERAGE SIGN OFF TIME BY EXECUTIVE</h2><canvas id="execAvgChart"></canvas></div>
+      <div class="panel"><h2>TOTAL SIGN OFF BY EXECUTIVE</h2><canvas id="execDonutChart"></canvas></div>
+    </section>
+
+    <section class="panel detail-panel">
+      <div class="detail-head"><div><div class="eyebrow">DETAIL</div><h2>FILTERED RAW DATA</h2></div><div><span id="rowCount"></span><button id="clearAll">Clear all filters</button></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Week</th><th>Visit No</th><th>Status</th><th>Vessel</th><th>Agent</th><th>Visit Reason</th><th>VOR Category</th><th>ETD</th><th>Invoice</th><th>Sign Off Time</th><th>Sign Off By</th><th>Duration</th><th>Category</th></tr></thead><tbody id="detailBody"></tbody></table></div>
+    </section>
+
+    <section id="errorBox" class="error hidden"></section>
+  </div>
+
+  <aside class="slicers">
+    <div class="slicer-actions"><button id="refresh">Refresh Data</button><button id="reset">Reset</button></div>
+    <div class="slicer" data-key="Visit Status"><div class="slicer-title">Visit Status</div><div id="sl-status" class="slicer-items"></div></div>
+    <div class="slicer" data-key="Sign Off By"><div class="slicer-title">Sign Off By</div><div id="sl-signoff" class="slicer-items"></div></div>
+    <div class="slicer" data-key="IMO WEEK"><div class="slicer-title">IMO WEEK</div><div id="sl-week" class="slicer-items tall"></div></div>
+    <div class="slicer" data-key="DURATION CATEGORY"><div class="slicer-title">DURATION CATEGORY</div><div id="sl-duration" class="slicer-items"></div></div>
+    <div class="slicer" data-key="Visit Reason"><div class="slicer-title">Visit Reason</div><div id="sl-reason" class="slicer-items tall"></div></div>
+  </aside>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
