@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PTP Pilot Allocation System</title>
+<style>
+:root{--navy:#073b5c;--navy2:#052d47;--cyan:#16c7d8;--blue:#1397d5;--bg:#eef4f7;--line:#c8d5dc;--green:#84cf45;--yellow:#fff200;--red:#f3261c;--ink:#102b3b}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);font-size:13px}
+header{height:68px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:14px;position:sticky;top:0;z-index:20}
+.anchor{font-size:34px}.brand{margin-right:auto}.brand b{font-size:20px;color:var(--navy)}.brand small{display:block;color:#657b89;margin-top:2px}
+nav{display:flex;gap:5px}.navbtn{border:0;background:transparent;padding:11px 12px;border-radius:7px;font-weight:700;color:#48606e;cursor:pointer}.navbtn.active,.navbtn:hover{background:#e8f5fa;color:var(--navy)}
+button,input,select{font:inherit}.btn{border:1px solid #bdd0da;background:#fff;padding:8px 11px;border-radius:6px;cursor:pointer;font-weight:700}.btn.primary{background:#078dd0;color:#fff;border-color:#078dd0}.btn.green{background:#07966a;color:#fff;border-color:#07966a}.btn.danger{background:#e84b43;color:#fff;border-color:#e84b43}
+main{padding:14px;max-width:1900px;margin:auto}.page{display:none}.page.active{display:block}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.toolbar h2{margin:0 auto 0 0;font-size:20px;color:var(--navy)}
+.card{background:#fff;border:1px solid #d5e0e5;border-radius:8px;box-shadow:0 1px 3px #0000000a;overflow:hidden}.card h3{margin:0;padding:10px 12px;background:var(--navy);color:#fff;font-size:13px}.grid2{display:grid;grid-template-columns:1.7fr 1fr;gap:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.stat{background:#fff;border:1px solid #d5e0e5;border-radius:8px;padding:15px}.stat b{font-size:27px;color:var(--navy);display:block}.stat span{color:#6d808c}
+table{border-collapse:collapse;width:100%}th{background:var(--navy);color:#fff;padding:7px;border:1px solid #315d75;white-space:nowrap}td{padding:5px 6px;border:1px solid #bfcdd4;height:27px;background:#f8fbfc}td[contenteditable="true"]{background:#fff}.compact td,.compact th{padding:4px 5px;height:24px}.scroll{overflow:auto;max-height:69vh}
+.pilotboard{background:#061317;color:#fff}.pilotboard td{background:#071417;color:#fff;border-color:#20363d;text-align:center;font-weight:700}.pilotboard th{background:#063e5c}.pilotboard .group{background:#12d5dc;color:#001e25;font-weight:800;min-width:105px}.code{cursor:pointer;min-width:35px}.code.IN{background:#159ee0}.code.OUT{background:#f02c24}.code.ANC{background:#b8bec2;color:#17252c}.code.TONGKANG{background:#ffd400;color:#182022}.code.SHF{background:#169dd9}.code.SFT{background:#78c848;color:#10220d}.code.MC{background:#f0a71a;color:#1d1600}.code.OC{background:#d1d1d1;color:#222}.code.HPL{background:#e98bdc;color:#222}.code.AL{background:#9a70df}.code.OR{background:#98e96d;color:#17300d}.code.RR{background:#d9ee20;color:#1c2200}
+.v-green td{background:#8bd34a}.v-yellow td{background:#fff400}.v-cyan td{background:#1bd4dc}.v-red td{background:#f42c20;color:#fff}
+.formgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px}.field label{display:block;font-weight:700;margin-bottom:4px;color:#4a6270}.field input,.field select{width:100%;padding:8px;border:1px solid #bdccd4;border-radius:5px;background:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tab{padding:8px 11px;border:1px solid #c7d4da;background:#fff;border-radius:6px;cursor:pointer;font-weight:700}.tab.active{background:var(--navy);color:#fff}
+.legend{display:flex;gap:13px;flex-wrap:wrap;padding:10px}.legend span{display:flex;align-items:center;gap:5px}.sw{width:18px;height:13px;border-radius:2px}
+.notice{padding:10px 12px;background:#fff8d9;border:1px solid #eedc88;border-radius:6px;margin-bottom:10px}.muted{color:#70828c}.right{text-align:right}.hidden{display:none!important}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}nav{overflow:auto}.brand small{display:none}}
+@media print{header,.toolbar,.tabs,.no-print{display:none!important}main{padding:0}.page{display:none!important}#allocation.page{display:block!important}.scroll{max-height:none;overflow:visible}.grid2{grid-template-columns:1.6fr 1fr}body{font-size:9px}}
+</style></head>
+<body><header><div class="anchor">⚓</div><div class="brand"><b>PTP PILOT ALLOCATION SYSTEM</b><small>Marine Services • VTMS Control</small></div>
+<nav>
+<button class="navbtn active" data-page="dashboard">Dashboard</button>
+<button class="navbtn" data-page="allocation">Pilot Allocation</button>
+<button class="navbtn" data-page="roster">Pilot Roster</button>
+<button class="navbtn" data-page="config">Configuration</button>
+<button class="navbtn" data-page="history">Allocation History</button>
+</nav></header><main>
+
+<section id="dashboard" class="page active">
+<div class="toolbar"><h2>Dashboard</h2><input id="dashDate" type="date"><button class="btn primary" onclick="goAllocation()">Open Allocation Board</button></div>
+<div class="stats"><div class="stat"><b id="sVessels">0</b><span>Planned vessels</span></div><div class="stat"><b id="sPilots">0</b><span>Active pilots</span></div><div class="stat"><b id="sJobs">0</b><span>Allocated jobs</span></div><div class="stat"><b id="sConflict">0</b><span>Warnings</span></div></div>
+<div class="grid2"><div class="card"><h3>Today's Vessel Plan</h3><div class="scroll"><table id="dashVessels"></table></div></div><div class="card"><h3>Pilot Groups / Shift</h3><div id="dashGroups" style="padding:12px"></div></div></div>
+</section>
+
+<section id="allocation" class="page">
+<div class="toolbar"><h2>Pilot Allocation</h2><label>Date <input id="allocDate" type="date"></label><button class="btn" onclick="changeDate(-1)">◀</button><button class="btn" onclick="today()">Today</button><button class="btn" onclick="changeDate(1)">▶</button><button class="btn green" onclick="addVessel()">+ Add Vessel</button><button class="btn primary" onclick="saveSnapshot()">Save Snapshot</button><button class="btn" onclick="window.print()">Print</button></div>
+<div id="warning" class="notice hidden"></div>
+<div class="grid2"><div>
+<div class="card"><h3>VESSEL MOVEMENT / PILOT BOOKING</h3><div class="scroll"><table id="vesselTable" class="compact"></table></div></div>
+<div class="card" style="margin-top:10px"><h3>SPECIAL / BUNKER / BARGE MOVEMENT</h3><table id="specialTable" class="compact"></table></div>
+</div>
+<div class="card"><h3>PILOT ON DUTY</h3><div class="scroll"><table id="pilotBoard" class="pilotboard compact"></table></div><div id="legend" class="legend"></div></div></div>
+</section>
+
+<section id="roster" class="page">
+<div class="toolbar"><h2>Pilot Roster</h2><button class="btn green" onclick="addPilot()">+ Add Pilot</button><button class="btn primary" onclick="saveAll()">Save</button></div>
+<div class="card"><div class="scroll"><table id="rosterTable"></table></div></div>
+</section>
+
+<section id="config" class="page">
+<div class="toolbar"><h2>Configuration</h2><button class="btn primary" onclick="saveConfig()">Save Configuration</button><button class="btn danger" onclick="resetDemo()">Reset Demo Data</button></div>
+<div class="tabs"><button class="tab active" data-cfg="general">General</button><button class="tab" data-cfg="codes">Allocation Codes</button><button class="tab" data-cfg="groups">Groups & Shifts</button><button class="tab" data-cfg="rules">LOA / Qualification Rules</button></div>
+<div id="cfg-general" class="cfg card"><h3>General Settings</h3><div class="formgrid">
+<div class="field"><label>System title</label><input id="cTitle"></div><div class="field"><label>Day shift start</label><input id="cDay" type="time"></div><div class="field"><label>Night shift start</label><input id="cNight" type="time"></div><div class="field"><label>Allocation columns</label><input id="cCols" type="number" min="4" max="16"></div></div></div>
+<div id="cfg-codes" class="cfg card hidden"><h3>Allocation Codes & Colours</h3><table id="codeTable"></table></div>
+<div id="cfg-groups" class="cfg card hidden"><h3>Groups & Shift Rotation</h3><table id="groupTable"></table></div>
+<div id="cfg-rules" class="cfg card hidden"><h3>LOA / Pilot Class Rules</h3><table id="ruleTable"></table></div>
+</section>
+
+<section id="history" class="page">
+<div class="toolbar"><h2>Allocation History</h2><input id="histSearch" placeholder="Search vessel / pilot / date" oninput="renderHistory()"><button class="btn danger" onclick="clearHistory()">Clear History</button></div>
+<div class="card"><div class="scroll"><table id="historyTable"></table></div></div>
+</section>
+</main>
+<script>
+const KEY='ptpPilotAllocationV1';
+const demo={
+ config:{title:'PTP Pilot Allocation System',day:'07:00',night:'19:00',cols:8,
+ codes:[['IN','Inbound','#159ee0'],['OUT','Outbound','#f02c24'],['ANC','Anchorage','#b8bec2'],['TONGKANG','Tongkang','#ffd400'],['SHF','Shift','#169dd9'],['SFT','SFT','#78c848'],['MC','Marine Craft','#f0a71a'],['O/C','On Call','#d1d1d1'],['HPL','HPL','#e98bdc'],['AL','AL','#9a70df'],['OR','OR','#98e96d'],['RR','RR','#d9ee20']],
+ groups:[['C','1ST DAY','28/09/2026'],['A','1ST NIGHT','28/09/2026'],['B','1ST DAY','30/09/2026']],
+ rules:[['0','150','CH60'],['151','250','CH66'],['251','350','CH75'],['351','999','CH76']]},
+ pilots:[
+ {class:'150',lic:'CH66',code:'KI',group:'C',status:'Active',jobs:['SFT','OUT','TONGKANG','ANC','OUT','OUT','','']},
+ {class:'250',lic:'CH66',code:'LL',group:'C',status:'Active',jobs:['SHT','AL','','IN','TONGKANG','','','']},
+ {class:'350',lic:'CH75',code:'SM',group:'C',status:'Active',jobs:['IN','IN','IN','SHF','AL','','','']},
+ {class:'UR',lic:'CH75',code:'RN',group:'C',status:'Active',jobs:['','','','','','','','']},
+ {class:'UR',lic:'CH75',code:'FQ',group:'C',status:'Active',jobs:['OUT','AL','','','IN','IN','','']},
+ {class:'UR',lic:'CH76',code:'FI',group:'C',status:'Active',jobs:['IN','IN','IN','KI','OUT','FA','','']},
+ {class:'UR',lic:'CH75',code:'RZ',group:'C',status:'Active',jobs:['ANC','IN','OUT','','IN','OUT','','']},
+ {class:'150',lic:'CH66',code:'JO',group:'A',status:'Active',jobs:['TONGKANG','IN','IN','IN','O/C','','','']},
+ {class:'250',lic:'CH66',code:'FM',group:'A',status:'Active',jobs:['ANC','OUT','IN','SHT','OUT','ANC','TONGKANG','']},
+ {class:'UR',lic:'CH75',code:'MR',group:'A',status:'Active',jobs:['OUT','JO','OUT','ANC','ANC','OUT','','']},
+ {class:'UR',lic:'CH66',code:'AY',group:'A',status:'Active',jobs:['IN','SHF','IN','OUT','TONGKANG','','','']},
+ {class:'UR',lic:'CH75',code:'ZL',group:'A',status:'Active',jobs:['TONGKANG','ANC','SFT','OUT','TONGKANG','','','']},
+ {class:'150',lic:'CH60',code:'II',group:'B',status:'Active',jobs:['IN','IN','OUT','','','','','']},
+ {class:'250',lic:'CH75',code:'MH',group:'B',status:'Active',jobs:['IN','OUT','IN','IN','','','','']},
+ {class:'250',lic:'CH75',code:'CT',group:'B',status:'Active',jobs:['IN','OUT','IN','ANC','','','','']},
+ {class:'UR',lic:'CH66',code:'KJ',group:'B',status:'Active',jobs:['IN','OUT','ANC','OUT','ANC','','','']}
+ ],
+ vessels:[
+ {name:'T.INDOSIN2001/B.PSB V',loa:'92',wharf:'290-382',bunker:'',book:'',clr:'',toLoa:'',toWharf:'170-200',toVessel:'SEA EAGLE',color:''},
+ {name:'HUA XIN 678 - SB C64 W3',loa:'168',wharf:'760-928',bunker:'',book:'1230H',clr:'368',toLoa:'',toWharf:'750-922/',toVessel:'MTT SEPANGGAR - 1300 SS C64 W3',color:'cyan'},
+ {name:'DALLAS EXPRESS',loa:'296',wharf:'980-1276',bunker:'',book:'',clr:'58',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'MAERSK NUSSFJORD - W4',loa:'172-1400',wharf:'1320-1492',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'MAERSK RIO INDIA',loa:'286',wharf:'1850-2136',bunker:'',book:'',clr:'52',toLoa:'',toWharf:'1630-1798',toVessel:'HUA XIN 678 - SB W5',color:''},
+ {name:'EUGEN MAERSK - W7',loa:'399-1300',wharf:'2330-2729',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'LEVERKUSEN EXPRESS -',loa:'367',wharf:'3060-3428',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'MARINA VOYAGER',loa:'200',wharf:'3600-3800',bunker:'<< LSHIP',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'MAERSK VARNA -',loa:'180',wharf:'3870-4050',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''},
+ {name:'ANGELIKI - YY C64 W12',loa:'222',wharf:'4110-4332',bunker:'',book:'1300H',clr:'',toLoa:'',toWharf:'',toVessel:'MSK NUSANTAR EST 1300 W12',color:'yellow'},
+ {name:'AXEL MSK - FQ W13',loa:'350',wharf:'4390-4740',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''}
+ ],
+ special:[{name:'CAPITOLT2001,ANTARA KOH PB8',loa:'',bunker:'SEA - BERTH 0',book:'1230H',remarks:'FA',color:'green'},{name:'BINA MARINE 31,BARGE COMFORT SHIPPING 2472',loa:'',bunker:'GRISEK - SEA',book:'1300H',remarks:'KI',color:'yellow'}],
+ history:[]
+};
+let db=load(); let currentDate=new Date().toISOString().slice(0,10);
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||structuredClone(demo)}catch(e){return structuredClone(demo)}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.page===id));renderAll()}
+function goAllocation(){showPage('allocation')}
+function iso(d){return d.toISOString().slice(0,10)} function today(){currentDate=iso(new Date());document.getElementById('allocDate').value=currentDate}
+function changeDate(n){let d=new Date(currentDate+'T12:00:00');d.setDate(d.getDate()+n);currentDate=iso(d);document.getElementById('allocDate').value=currentDate}
+document.getElementById('allocDate').onchange=e=>currentDate=e.target.value;
+function editable(v,attr,i,key){return '<td contenteditable="true" data-'+attr+'="'+i+'" data-key="'+key+'">'+esc(v)+'</td>'}
+function renderVessels(){
+ let h='<tr><th>VESSEL NAME</th><th>LOA</th><th>WHARF MARK</th><th>BUNKER</th><th>BOOK</th><th>CLR</th><th>LOA</th><th>WHARF MARK</th><th>VESSEL NAME (TO)</th><th></th></tr>';
+ db.vessels.forEach((v,i)=>{h+='<tr class="'+(v.color?'v-'+v.color:'')+'">'+editable(v.name,'v',i,'name')+editable(v.loa,'v',i,'loa')+editable(v.wharf,'v',i,'wharf')+editable(v.bunker,'v',i,'bunker')+editable(v.book,'v',i,'book')+editable(v.clr,'v',i,'clr')+editable(v.toLoa,'v',i,'toLoa')+editable(v.toWharf,'v',i,'toWharf')+editable(v.toVessel,'v',i,'toVessel')+'<td><button class="btn danger" onclick="delVessel('+i+')">×</button></td></tr>'});document.getElementById('vesselTable').innerHTML=h;
+ document.querySelectorAll('[data-v]').forEach(td=>td.onblur=()=>{db.vessels[+td.dataset.v][td.dataset.key]=td.innerText.trim();persist();renderDashboard()})
+ let s='<tr><th>VESSEL NAME</th><th>LOA</th><th>BUNKER</th><th>BOOK</th><th>REMARKS</th></tr>';db.special.forEach((v,i)=>s+='<tr class="'+(v.color?'v-'+v.color:'')+'">'+editable(v.name,'s',i,'name')+editable(v.loa,'s',i,'loa')+editable(v.bunker,'s',i,'bunker')+editable(v.book,'s',i,'book')+editable(v.remarks,'s',i,'remarks')+'</tr>');document.getElementById('specialTable').innerHTML=s;document.querySelectorAll('[data-s]').forEach(td=>td.onblur=()=>{db.special[+td.dataset.s][td.dataset.key]=td.innerText.trim();persist()})
+}
+function addVessel(){db.vessels.push({name:'NEW VESSEL',loa:'',wharf:'',bunker:'',book:'',clr:'',toLoa:'',toWharf:'',toVessel:'',color:''});persist();renderVessels()}
+function delVessel(i){if(confirm('Remove this vessel?')){db.vessels.splice(i,1);persist();renderAll()}}
+function cssCode(x){return x==='O/C'?'OC':x}
+function renderBoard(){let groups=[...new Set(db.pilots.map(p=>p.group))];let h='<tr><th>GROUP</th><th>CLASS</th><th>LIC</th><th>PILOT</th>';for(let i=0;i<db.config.cols;i++)h+='<th>'+(i+1)+'</th>';h+='</tr>';
+ groups.forEach(g=>{let ps=db.pilots.filter(p=>p.group===g&&p.status!=='Inactive');ps.forEach((p,pi)=>{let idx=db.pilots.indexOf(p);h+='<tr>'+(pi===0?'<td class="group" rowspan="'+ps.length+'">GROUP '+esc(g)+'</td>':'')+'<td>'+esc(p.class)+'</td><td>'+esc(p.lic)+'</td><td>'+esc(p.code)+'</td>';for(let j=0;j<db.config.cols;j++){let c=p.jobs[j]||'';h+='<td class="code '+cssCode(c)+'" data-p="'+idx+'" data-j="'+j+'" onclick="cycleCode(this)">'+esc(c)+'</td>'}h+='</tr>'})});document.getElementById('pilotBoard').innerHTML=h;
+ document.getElementById('legend').innerHTML=db.config.codes.map(c=>'<span><i class="sw" style="background:'+c[2]+'"></i>'+esc(c[0])+'</span>').join('');
+}
+function cycleCode(td){let p=db.pilots[+td.dataset.p],j=+td.dataset.j,codes=[''].concat(db.config.codes.map(x=>x[0])),n=(codes.indexOf(p.jobs[j]||'')+1)%codes.length;p.jobs[j]=codes[n];persist();renderBoard();renderDashboard()}
+function renderRoster(){let h='<tr><th>CLASS</th><th>LICENCE</th><th>PILOT CODE</th><th>GROUP</th><th>STATUS</th><th></th></tr>';db.pilots.forEach((p,i)=>h+='<tr>'+editable(p.class,'p',i,'class')+editable(p.lic,'p',i,'lic')+editable(p.code,'p',i,'code')+editable(p.group,'p',i,'group')+'<td><select data-status="'+i+'"><option '+(p.status==='Active'?'selected':'')+'>Active</option><option '+(p.status==='Inactive'?'selected':'')+'>Inactive</option></select></td><td><button class="btn danger" onclick="delPilot('+i+')">Delete</button></td></tr>');document.getElementById('rosterTable').innerHTML=h;document.querySelectorAll('[data-p]').forEach(td=>td.onblur=()=>{db.pilots[+td.dataset.p][td.dataset.key]=td.innerText.trim();persist()});document.querySelectorAll('[data-status]').forEach(s=>s.onchange=()=>{db.pilots[+s.dataset.status].status=s.value;persist()})}
+function addPilot(){db.pilots.push({class:'UR',lic:'CH75',code:'NEW',group:'A',status:'Active',jobs:Array(db.config.cols).fill('')});persist();renderRoster()}
+function delPilot(i){if(confirm('Delete pilot '+db.pilots[i].code+'?')){db.pilots.splice(i,1);persist();renderAll()}}
+function saveAll(){persist();alert('Pilot roster saved.')}
+function renderConfig(){cTitle.value=db.config.title;cDay.value=db.config.day;cNight.value=db.config.night;cCols.value=db.config.cols;
+ codeTable.innerHTML='<tr><th>CODE</th><th>DESCRIPTION</th><th>COLOUR</th></tr>'+db.config.codes.map((c,i)=>'<tr>'+editable(c[0],'code',i,'0')+editable(c[1],'code',i,'1')+'<td><input type="color" data-color="'+i+'" value="'+c[2]+'"></td></tr>').join('');
+ groupTable.innerHTML='<tr><th>GROUP</th><th>SHIFT</th><th>START DATE</th></tr>'+db.config.groups.map((g,i)=>'<tr>'+editable(g[0],'group',i,'0')+editable(g[1],'group',i,'1')+editable(g[2],'group',i,'2')+'</tr>').join('');
+ ruleTable.innerHTML='<tr><th>MIN LOA</th><th>MAX LOA</th><th>MIN PILOT LICENCE</th></tr>'+db.config.rules.map((r,i)=>'<tr>'+editable(r[0],'rule',i,'0')+editable(r[1],'rule',i,'1')+editable(r[2],'rule',i,'2')+'</tr>').join('');
+}
+function saveConfig(){db.config.title=cTitle.value;db.config.day=cDay.value;db.config.night=cNight.value;db.config.cols=Math.max(4,Math.min(16,+cCols.value||8));document.querySelectorAll('[data-code]').forEach(x=>db.config.codes[+x.dataset.code][+x.dataset.key]=x.innerText.trim());document.querySelectorAll('[data-color]').forEach(x=>db.config.codes[+x.dataset.color][2]=x.value);document.querySelectorAll('[data-group]').forEach(x=>db.config.groups[+x.dataset.group][+x.dataset.key]=x.innerText.trim());document.querySelectorAll('[data-rule]').forEach(x=>db.config.rules[+x.dataset.rule][+x.dataset.key]=x.innerText.trim());persist();renderAll();alert('Configuration saved.')}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));document.querySelectorAll('.cfg').forEach(x=>x.classList.toggle('hidden',x.id!=='cfg-'+t.dataset.cfg))})
+function saveSnapshot(){let jobs=[];db.pilots.forEach(p=>p.jobs.forEach((j,k)=>{if(j)jobs.push(p.code+':'+j+'#'+(k+1))}));db.history.unshift({date:currentDate,time:new Date().toLocaleTimeString(),vessels:db.vessels.length,pilots:db.pilots.filter(p=>p.status==='Active').length,jobs:jobs.length,detail:jobs.join(', ')});persist();renderHistory();alert('Allocation snapshot saved.')}
+function renderHistory(){let q=(histSearch.value||'').toLowerCase();let rows=db.history.filter(x=>JSON.stringify(x).toLowerCase().includes(q));historyTable.innerHTML='<tr><th>DATE</th><th>TIME</th><th>VESSELS</th><th>PILOTS</th><th>JOBS</th><th>DETAIL</th></tr>'+rows.map(x=>'<tr><td>'+x.date+'</td><td>'+x.time+'</td><td>'+x.vessels+'</td><td>'+x.pilots+'</td><td>'+x.jobs+'</td><td>'+esc(x.detail)+'</td></tr>').join('')}
+function clearHistory(){if(confirm('Clear all allocation history?')){db.history=[];persist();renderHistory()}}
+function renderDashboard(){sVessels.textContent=db.vessels.length;sPilots.textContent=db.pilots.filter(p=>p.status==='Active').length;let jobs=db.pilots.reduce((n,p)=>n+p.jobs.filter(Boolean).length,0);sJobs.textContent=jobs;sConflict.textContent=0;dashVessels.innerHTML='<tr><th>Vessel</th><th>LOA</th><th>Wharf</th><th>Book</th></tr>'+db.vessels.slice(0,12).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.loa)+'</td><td>'+esc(v.wharf)+'</td><td>'+esc(v.book)+'</td></tr>').join('');dashGroups.innerHTML=db.config.groups.map(g=>'<p><b>GROUP '+esc(g[0])+'</b> — '+esc(g[1])+' <span class="muted">('+esc(g[2])+')</span></p>').join('')}
+function resetDemo(){if(confirm('Reset all locally saved data to demo defaults?')){db=structuredClone(demo);persist();renderAll()}}
+function renderAll(){renderVessels();renderBoard();renderRoster();renderConfig();renderHistory();renderDashboard();allocDate.value=currentDate;dashDate.value=currentDate}
+renderAll();
+</script></body></html>
