@@ -44,7 +44,23 @@ export class AISRoom {
       ws.addEventListener('open',()=>{
         ws.send(JSON.stringify({APIKey:this.env.AISSTREAM_API_KEY,BoundingBoxes:[BBOX],FilterMessageTypes:['PositionReport','StandardClassBPositionReport','ExtendedClassBPositionReport']}));
       });
-      ws.addEventListener('message',event=>{this.stats.received++;this.stats.lastMessageAt=new Date().toISOString();try{const raw=typeof event.data==='string'?event.data:typeof event.data?.text==='function'?null:String(event.data);if(raw===null){this.stats.lastError='Non-text WebSocket message';return;}const msg=JSON.parse(raw);this.stats.lastMessageType=String(msg.MessageType||'unknown').slice(0,64);if(msg.MessageType==='Error'||msg.error)this.stats.lastError='AISStream returned an error message';this.ingest(msg)}catch(e){this.stats.lastError='Message processing: '+String(e?.message||e).slice(0,160);}});
+      ws.addEventListener('message',async event=>{
+        this.stats.received++;
+        this.stats.lastMessageAt=new Date().toISOString();
+        try{
+          let raw;
+          if(typeof event.data==='string')raw=event.data;
+          else if(event.data instanceof ArrayBuffer)raw=new TextDecoder().decode(event.data);
+          else if(ArrayBuffer.isView(event.data))raw=new TextDecoder().decode(event.data);
+          else if(typeof event.data?.text==='function')raw=await event.data.text();
+          else throw new Error('Unsupported WebSocket payload type');
+          const msg=JSON.parse(raw);
+          this.stats.lastMessageType=String(msg.MessageType||'unknown').slice(0,64);
+          if(msg.MessageType==='Error'||msg.error)this.stats.lastError='AISStream returned an error message';
+          this.ingest(msg);
+          if(this.stats.accepted>0)this.stats.lastError=null;
+        }catch(e){this.stats.lastError='Message processing: '+String(e?.message||e).slice(0,160);}
+      });
       ws.addEventListener('close',()=>{if(this.ws===ws)this.ws=null});
       ws.addEventListener('error',()=>{this.stats.lastError='WebSocket error';try{ws.close()}catch(_e){}});
     }catch(e){this.stats.lastError='WebSocket setup failed: '+String(e?.message||e).slice(0,120);this.ws=null}
