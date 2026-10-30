@@ -1,7 +1,7 @@
 // AISStream receiver. The API key stays in Cloudflare Worker secrets.
 // Public map endpoint returns only recent AIS positions, never credentials.
 const ORIGIN = 'https://asyraf6857.github.io';
-const BBOX = [[1.12,103.42],[1.55,103.80]]; // PTP vicinity; AISStream lat/lon corners
+const BBOX = [[1.05,103.35],[1.55,104.05]]; // PTP vicinity; AISStream lat/lon corners
 const HEADERS = {'Access-Control-Allow-Origin':ORIGIN,'Cache-Control':'no-store','Content-Type':'application/json'};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:HEADERS});
 export default {
@@ -10,11 +10,11 @@ export default {
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...HEADERS,'Access-Control-Allow-Methods':'GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type'}});
     if(request.method!=='GET')return json({error:'Method not allowed'},405);
     if(url.pathname!=='/vessels'&&url.pathname!=='/health')return json({error:'Not found'},404);
-    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v2'));
+    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v3'));
     return stub.fetch('https://internal'+url.pathname);
   },
   async scheduled(_event,env,ctx){
-    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v2'));
+    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v3'));
     ctx.waitUntil(stub.fetch('https://internal/connect'));
   }
 };
@@ -70,7 +70,7 @@ export class AISRoom {
     if(!data){this.stats.rejected++;return;}
     const mmsi=String(msg.MetaData?.MMSI||data.UserID||'');
     const lat=Number(data.Latitude),lng=Number(data.Longitude);
-    if(!/^\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.12||lat>1.55||lng<103.42||lng>103.80){this.stats.rejected++;return;}
+    if(!/^\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.05||lat>1.55||lng<103.35||lng>104.05){this.stats.rejected++;return;}
     const updatedAt=new Date().toISOString();
     this.stats.accepted++;this.positions.set(mmsi,{mmsi,name:String(msg.MetaData?.ShipName||'Unknown vessel').trim(),lat,lng,sog:Number(data.Sog),cog:Number(data.Cog),heading:Number(data.TrueHeading),updatedAt});
     if(this.positions.size>1500){for(const [id,v] of this.positions){if(Date.now()-Date.parse(v.updatedAt)>15*60*1000)this.positions.delete(id)}}
