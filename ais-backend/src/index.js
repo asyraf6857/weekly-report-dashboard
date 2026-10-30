@@ -10,11 +10,11 @@ export default {
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...HEADERS,'Access-Control-Allow-Methods':'GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type'}});
     if(request.method!=='GET')return json({error:'Method not allowed'},405);
     if(url.pathname!=='/vessels'&&url.pathname!=='/health')return json({error:'Not found'},404);
-    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed'));
+    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v2'));
     return stub.fetch('https://internal'+url.pathname);
   },
   async scheduled(_event,env,ctx){
-    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed'));
+    const stub=env.AIS_ROOM.get(env.AIS_ROOM.idFromName('ptp-live-feed-v2'));
     ctx.waitUntil(stub.fetch('https://internal/connect'));
   }
 };
