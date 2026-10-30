@@ -19,13 +19,13 @@ export default {
   }
 };
 export class AISRoom {
-  constructor(state,env){this.state=state;this.env=env;this.ws=null;this.lastConnect=0;this.positions=new Map();this.ready=this.restore();}
+  constructor(state,env){this.state=state;this.env=env;this.ws=null;this.lastConnect=0;this.positions=new Map();this.stats={received:0,accepted:0,rejected:0,lastMessageAt:null,lastError:null};this.ready=this.restore();}
   async restore(){const rows=await this.state.storage.get('positions');if(Array.isArray(rows))this.positions=new Map(rows);}
   async fetch(request){
     await this.ready;
     const path=new URL(request.url).pathname;
     if(path==='/connect'){this.connect();return json({status:'connecting'});}
-    if(path==='/health')return json({status:this.ws?.readyState===1?'connected':'waiting',vessels:this.positions.size,lastAttempt:this.lastConnect});
+    if(path==='/health')return json({status:this.ws?.readyState===1?'connected':'waiting',vessels:this.positions.size,lastAttempt:this.lastConnect,diagnostics:this.stats});
     if(path==='/vessels'){
       const now=Date.now();
       const vessels=[...this.positions.values()].filter(v=>now-Date.parse(v.updatedAt)<15*60*1000);
@@ -36,7 +36,7 @@ export class AISRoom {
   connect(){
     if(this.ws&&(this.ws.readyState===0||this.ws.readyState===1))return;
     if(Date.now()-this.lastConnect<20000)return;
-    if(!this.env.AISSTREAM_API_KEY)return;
+    if(!this.env.AISSTREAM_API_KEY){this.stats.lastError='AISSTREAM_API_KEY missing';return;}
     this.lastConnect=Date.now();
     try{
       const ws=new WebSocket('wss://stream.aisstream.io/v0/stream');
@@ -44,19 +44,19 @@ export class AISRoom {
       ws.addEventListener('open',()=>{
         ws.send(JSON.stringify({APIKey:this.env.AISSTREAM_API_KEY,BoundingBoxes:[BBOX],FilterMessageTypes:['PositionReport','StandardClassBPositionReport','ExtendedClassBPositionReport']}));
       });
-      ws.addEventListener('message',event=>{try{this.ingest(JSON.parse(event.data))}catch(_e){}});
+      ws.addEventListener('message',event=>{this.stats.received++;this.stats.lastMessageAt=new Date().toISOString();try{const msg=JSON.parse(event.data);if(msg.MessageType==='Error'||msg.error)this.stats.lastError='AISStream returned an error message';this.ingest(msg)}catch(e){this.stats.lastError='Message parse failure';}});
       ws.addEventListener('close',()=>{if(this.ws===ws)this.ws=null});
-      ws.addEventListener('error',()=>{try{ws.close()}catch(_e){}});
-    }catch(_e){this.ws=null}
+      ws.addEventListener('error',()=>{this.stats.lastError='WebSocket error';try{ws.close()}catch(_e){}});
+    }catch(e){this.stats.lastError='WebSocket setup failed: '+String(e?.message||e).slice(0,120);this.ws=null}
   }
   ingest(msg){
     const data=msg.Message?.PositionReport||msg.Message?.StandardClassBPositionReport||msg.Message?.ExtendedClassBPositionReport;
-    if(!data)return;
+    if(!data){this.stats.rejected++;return;}
     const mmsi=String(msg.MetaData?.MMSI||data.UserID||'');
     const lat=Number(data.Latitude),lng=Number(data.Longitude);
-    if(!/^\\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.12||lat>1.55||lng<103.42||lng>103.80)return;
+    if(!/^\\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.12||lat>1.55||lng<103.42||lng>103.80){this.stats.rejected++;return;}
     const updatedAt=new Date().toISOString();
-    this.positions.set(mmsi,{mmsi,name:String(msg.MetaData?.ShipName||'Unknown vessel').trim(),lat,lng,sog:Number(data.Sog),cog:Number(data.Cog),heading:Number(data.TrueHeading),updatedAt});
+    this.stats.accepted++;this.positions.set(mmsi,{mmsi,name:String(msg.MetaData?.ShipName||'Unknown vessel').trim(),lat,lng,sog:Number(data.Sog),cog:Number(data.Cog),heading:Number(data.TrueHeading),updatedAt});
     if(this.positions.size>1500){for(const [id,v] of this.positions){if(Date.now()-Date.parse(v.updatedAt)>15*60*1000)this.positions.delete(id)}}
     if(!this.savePending){this.savePending=true;this.state.storage.setAlarm(Date.now()+10000).catch(()=>{});}
   }
