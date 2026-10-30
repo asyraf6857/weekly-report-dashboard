@@ -13,3 +13,7 @@ Cloudflare Worker + SQLite Durable Object, receiving AISStream positions near PT
 7. Frontend: configure `window.VTMS_AIS_RELAY_URL='https://ptp-live-ais.asyraf6857.workers.dev/vessels'` **before** the existing AIS overlay script.
 
 The public endpoint exposes vessel locations; protect access if this is intended for internal-only use. Outbound WebSocket lifecycle and reconnect behavior should be tested in Cloudflare production before treating this as reliable continuous monitoring.
+
+## Deployment trigger
+
+Cloudflare Builds is connected to the repository main branch. This documentation update triggers the initial build; check Cloudflare build logs for success or failure before using the AIS endpoint.
