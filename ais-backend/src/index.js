@@ -19,7 +19,7 @@ export default {
   }
 };
 export class AISRoom {
-  constructor(state,env){this.state=state;this.env=env;this.ws=null;this.lastConnect=0;this.positions=new Map();this.stats={received:0,accepted:0,rejected:0,lastMessageAt:null,lastError:null};this.ready=this.restore();}
+  constructor(state,env){this.state=state;this.env=env;this.ws=null;this.lastConnect=0;this.positions=new Map();this.stats={received:0,accepted:0,rejected:0,lastMessageAt:null,lastError:null,lastMessageType:null};this.ready=this.restore();}
   async restore(){const rows=await this.state.storage.get('positions');if(Array.isArray(rows))this.positions=new Map(rows);}
   async fetch(request){
     await this.ready;
@@ -44,7 +44,7 @@ export class AISRoom {
       ws.addEventListener('open',()=>{
         ws.send(JSON.stringify({APIKey:this.env.AISSTREAM_API_KEY,BoundingBoxes:[BBOX],FilterMessageTypes:['PositionReport','StandardClassBPositionReport','ExtendedClassBPositionReport']}));
       });
-      ws.addEventListener('message',event=>{this.stats.received++;this.stats.lastMessageAt=new Date().toISOString();try{const msg=JSON.parse(event.data);if(msg.MessageType==='Error'||msg.error)this.stats.lastError='AISStream returned an error message';this.ingest(msg)}catch(e){this.stats.lastError='Message parse failure';}});
+      ws.addEventListener('message',event=>{this.stats.received++;this.stats.lastMessageAt=new Date().toISOString();try{const raw=typeof event.data==='string'?event.data:typeof event.data?.text==='function'?null:String(event.data);if(raw===null){this.stats.lastError='Non-text WebSocket message';return;}const msg=JSON.parse(raw);this.stats.lastMessageType=String(msg.MessageType||'unknown').slice(0,64);if(msg.MessageType==='Error'||msg.error)this.stats.lastError='AISStream returned an error message';this.ingest(msg)}catch(e){this.stats.lastError='Message processing: '+String(e?.message||e).slice(0,160);}});
       ws.addEventListener('close',()=>{if(this.ws===ws)this.ws=null});
       ws.addEventListener('error',()=>{this.stats.lastError='WebSocket error';try{ws.close()}catch(_e){}});
     }catch(e){this.stats.lastError='WebSocket setup failed: '+String(e?.message||e).slice(0,120);this.ws=null}
