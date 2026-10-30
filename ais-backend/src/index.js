@@ -28,7 +28,7 @@ export class AISRoom {
     if(path==='/health')return json({status:this.ws?.readyState===1?'connected':'waiting',vessels:this.positions.size,lastAttempt:this.lastConnect,diagnostics:this.stats});
     if(path==='/vessels'){
       const now=Date.now();
-      const vessels=[...this.positions.values()].filter(v=>now-Date.parse(v.updatedAt)<15*60*1000);
+      const vessels=[...this.positions.values()].filter(v=>now-Date.parse(v.updatedAt)<60*60*1000);
       return json({vessels,updatedAt:new Date().toISOString(),source:'AISStream',feedConnected:this.ws?.readyState===1});
     }
     return json({error:'Not found'},404);
@@ -73,12 +73,12 @@ export class AISRoom {
     if(!/^\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.05||lat>1.55||lng<103.35||lng>104.05){this.stats.rejected++;return;}
     const updatedAt=new Date().toISOString();
     this.stats.accepted++;this.positions.set(mmsi,{mmsi,name:String(msg.MetaData?.ShipName||'Unknown vessel').trim(),lat,lng,sog:Number(data.Sog),cog:Number(data.Cog),heading:Number(data.TrueHeading),updatedAt});
-    if(this.positions.size>1500){for(const [id,v] of this.positions){if(Date.now()-Date.parse(v.updatedAt)>15*60*1000)this.positions.delete(id)}}
+    if(this.positions.size>1500){for(const [id,v] of this.positions){if(Date.now()-Date.parse(v.updatedAt)>60*60*1000)this.positions.delete(id)}}
     if(!this.savePending){this.savePending=true;this.state.storage.setAlarm(Date.now()+10000).catch(()=>{});}
   }
   async alarm(){
     const now=Date.now();
-    for(const [id,v] of this.positions){if(now-Date.parse(v.updatedAt)>15*60*1000)this.positions.delete(id)}
+    for(const [id,v] of this.positions){if(now-Date.parse(v.updatedAt)>60*60*1000)this.positions.delete(id)}
     await this.state.storage.put('positions',[...this.positions.entries()]);
     this.savePending=false;
     // Outbound WebSocket lifetimes depend on Worker runtime. Cron re-establishes if disconnected.
