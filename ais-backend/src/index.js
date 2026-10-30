@@ -54,7 +54,7 @@ export class AISRoom {
     if(!data){this.stats.rejected++;return;}
     const mmsi=String(msg.MetaData?.MMSI||data.UserID||'');
     const lat=Number(data.Latitude),lng=Number(data.Longitude);
-    if(!/^\\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.12||lat>1.55||lng<103.42||lng>103.80){this.stats.rejected++;return;}
+    if(!/^\d{9}$/.test(mmsi)||!Number.isFinite(lat)||!Number.isFinite(lng)||lat<1.12||lat>1.55||lng<103.42||lng>103.80){this.stats.rejected++;return;}
     const updatedAt=new Date().toISOString();
     this.stats.accepted++;this.positions.set(mmsi,{mmsi,name:String(msg.MetaData?.ShipName||'Unknown vessel').trim(),lat,lng,sog:Number(data.Sog),cog:Number(data.Cog),heading:Number(data.TrueHeading),updatedAt});
     if(this.positions.size>1500){for(const [id,v] of this.positions){if(Date.now()-Date.parse(v.updatedAt)>15*60*1000)this.positions.delete(id)}}
